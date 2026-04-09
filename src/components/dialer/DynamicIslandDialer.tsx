@@ -1,9 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCall } from '../../context/CallContext';
 import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, RefreshCcw, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
-
-const easeOutExpo = [0.32, 0.72, 0, 1];
+const easeOutExpo = [0.32, 0.72, 0, 1] as const;
 
 export const DynamicIslandDialer = () => {
   const { 
