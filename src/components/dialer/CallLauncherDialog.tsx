@@ -25,6 +25,7 @@ export const CallLauncherDialog = () => {
   const [showDialPad, setShowDialPad] = useState(false);
   const [search, setSearch] = useState('');
   const [manualNumber, setManualNumber] = useState('');
+  const [selectedFromNumber, setSelectedFromNumber] = useState('');
 
   const groups = dialerRequest?.groups ?? [];
   const activeGroup = useMemo(
@@ -68,6 +69,8 @@ export const CallLauncherDialog = () => {
     setSearch('');
     setShowDialPad(false);
     setManualNumber('');
+    const fallbackFrom = dialerRequest.defaultFromNumber ?? dialerRequest.agentNumbers?.[0] ?? '';
+    setSelectedFromNumber(fallbackFrom);
   }, [dialerRequest, groups]);
 
   useEffect(() => {
@@ -84,7 +87,7 @@ export const CallLauncherDialog = () => {
     const number = activeNumber || activeMember?.numbers[0] || manualNumber.trim();
     if (!number) return;
     const name = activeMember?.name ?? 'Manual number';
-    startCall({ name, number });
+    startCall({ name, number, fromNumber: selectedFromNumber || undefined });
     closeDialer();
   };
 
@@ -324,6 +327,22 @@ export const CallLauncherDialog = () => {
                   Close
                 </button>
                 <div className="flex items-center gap-4">
+                  {!!dialerRequest.agentNumbers?.length && (
+                    <label className="flex items-center gap-2 rounded-xl border border-[#E6EAF3] bg-white px-3 py-2">
+                      <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A3ABC2]">From</span>
+                      <select
+                        value={selectedFromNumber}
+                        onChange={(e) => setSelectedFromNumber(e.target.value)}
+                        className="bg-transparent text-[12px] font-bold tracking-tight text-[#2C334B] outline-none"
+                      >
+                        {dialerRequest.agentNumbers.map((num) => (
+                          <option key={num} value={num}>
+                            {num}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <button
                     onClick={handleCall}
                     disabled={!activeMember && !manualNumber.trim()}

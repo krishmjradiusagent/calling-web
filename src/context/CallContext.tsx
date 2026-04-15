@@ -6,6 +6,7 @@ export type SummaryStatus = 'idle' | 'summarizing' | 'ready' | 'viewing';
 interface Client {
   name: string;
   number: string;
+  fromNumber?: string;
 }
 
 export interface CallTarget {
@@ -37,6 +38,8 @@ export interface CallLaunchRequest {
   source: 'profile' | 'settings';
   clients: CallLaunchClient[];
   groups?: CallLaunchGroup[];
+  agentNumbers?: string[];
+  defaultFromNumber?: string;
   title: string;
   description: string;
   searchPlaceholder?: string;

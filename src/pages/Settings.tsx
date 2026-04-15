@@ -151,7 +151,9 @@ export default function Settings() {
                     description: 'Pick clients or agents, then select a number.',
                     searchPlaceholder: 'Search name or number',
                     primaryActionLabel: 'Call now',
-                    initialGroupId: 'clients'
+                    initialGroupId: 'clients',
+                    agentNumbers: ['(555) 901-1100', '(555) 901-2200', '(555) 901-3300'],
+                    defaultFromNumber: '(555) 901-1100'
                   })}
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-radius-blue hover:text-radius-blue"
                 >

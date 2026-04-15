@@ -75,7 +75,9 @@ export const ClientProfile = ({ onClose }: ClientProfileProps) => {
               clients: [client],
               title: 'Choose number to call',
               description: 'Pick one number to call.',
-              primaryActionLabel: 'Call now'
+              primaryActionLabel: 'Call now',
+              agentNumbers: ['(555) 901-1100', '(555) 901-2200', '(555) 901-3300'],
+              defaultFromNumber: '(555) 901-1100'
             })}
             className="w-10 h-10 flex items-center justify-center bg-[#EEF2FF] border border-[#C7D2FE] rounded-[10px] text-radius-blue transition-all hover:bg-[#E0E7FF]"
           >
@@ -121,7 +123,9 @@ export const ClientProfile = ({ onClose }: ClientProfileProps) => {
                 clients: [client],
                 title: 'Choose number to call',
                 description: 'Pick one number to call.',
-                primaryActionLabel: 'Call now'
+                primaryActionLabel: 'Call now',
+                agentNumbers: ['(555) 901-1100', '(555) 901-2200', '(555) 901-3300'],
+                defaultFromNumber: '(555) 901-1100'
               })}
               className="block text-sm font-bold text-radius-blue hover:underline"
             >

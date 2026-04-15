@@ -41,7 +41,7 @@ export const DynamicIslandDialer = () => {
         transition={{ duration: 0.6, ease: easeOutExpo }}
         className="pointer-events-auto"
       >
-        <div className="bg-white/90 backdrop-blur-xl border border-border shadow-premium rounded-[24px] px-4 py-2 flex items-center gap-4 min-w-[320px]">
+        <div className="bg-white/90 backdrop-blur-xl border border-border shadow-premium rounded-[24px] px-4 py-2 flex items-center gap-4 min-w-[420px]">
           {/* Status Specific UI */}
           <AnimatePresence mode="wait">
             {status === 'calling' && (
@@ -62,7 +62,10 @@ export const DynamicIslandDialer = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold">{client?.name}</h3>
-                  <p className="text-[12px] text-gray-500 animate-pulse">Calling...</p>
+                  <p className="text-[12px] text-gray-500 animate-pulse">
+                    Calling...
+                    {client?.fromNumber ? ` • From ${client.fromNumber}` : ''}
+                  </p>
                 </div>
                 <DialerButton onClick={openKeypad}>
                   <DialpadGlyph />
@@ -83,7 +86,10 @@ export const DynamicIslandDialer = () => {
               >
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold">{client?.name}</h3>
-                  <p className="text-[12px] font-mono text-gray-500">{formatDuration(duration)}</p>
+                  <p className="text-[12px] font-mono text-gray-500">
+                    {formatDuration(duration)}
+                    {client?.fromNumber ? ` • From ${client.fromNumber}` : ''}
+                  </p>
                   {dialedDigits && (
                     <p className="mt-0.5 text-[11px] font-mono tracking-[0.2em] text-radius-blue">{dialedDigits}</p>
                   )}
