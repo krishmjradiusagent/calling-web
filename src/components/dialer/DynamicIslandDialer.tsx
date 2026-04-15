@@ -1,7 +1,9 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useCall } from '../../context/CallContext';
 import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, RefreshCcw, X } from 'lucide-react';
+import { VoiceReactiveGradient } from './VoiceReactiveGradient';
 const easeOutExpo = [0.32, 0.72, 0, 1] as const;
+const easeInOutStrong = [0.77, 0, 0.175, 1] as const;
 
 export const DynamicIslandDialer = () => {
   const { 
@@ -23,6 +25,7 @@ export const DynamicIslandDialer = () => {
     deleteKeypadDigit,
     clearKeypad
   } = useCall();
+  const shouldReduceMotion = useReducedMotion();
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -38,10 +41,10 @@ export const DynamicIslandDialer = () => {
         initial={{ y: -100, opacity: 0, scale: 0.9 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: -100, opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.6, ease: easeOutExpo }}
+        transition={{ duration: shouldReduceMotion ? 0.2 : 0.45, ease: easeOutExpo }}
         className="pointer-events-auto"
       >
-        <div className="bg-white/90 backdrop-blur-xl border border-border shadow-premium rounded-[24px] px-4 py-2 flex items-center gap-4 min-w-[420px]">
+        <div className="bg-white/92 backdrop-blur-xl border border-border shadow-premium rounded-[24px] px-4 py-2 flex items-center gap-4 min-w-[440px]">
           {/* Status Specific UI */}
           <AnimatePresence mode="wait">
             {status === 'calling' && (
@@ -62,7 +65,7 @@ export const DynamicIslandDialer = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold">{client?.name}</h3>
-                  <p className="text-[12px] text-gray-500 animate-pulse">
+                  <p className="text-[12px] text-gray-500">
                     Calling...
                     {client?.fromNumber ? ` • From ${client.fromNumber}` : ''}
                   </p>
@@ -166,13 +169,30 @@ export const DynamicIslandDialer = () => {
       </motion.div>
 
       <AnimatePresence>
+        {(status === 'calling' || status === 'connected') && (
+          <motion.div
+            key="voice-gradient"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: shouldReduceMotion ? 0.12 : 0.22, ease: easeOutExpo }}
+          >
+            <VoiceReactiveGradient
+              active={status === 'connected' && !isMuted}
+              intensity={status === 'calling' ? 0.45 : isMuted ? 0.2 : 1}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {isKeypadOpen && status === 'connected' && (
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: easeOutExpo }}
-            className="pointer-events-auto absolute left-1/2 top-[calc(100%+12px)] w-[320px] -translate-x-1/2 rounded-[24px] border border-border bg-white/95 p-4 shadow-premium backdrop-blur-xl"
+            initial={{ opacity: 0, y: 10, scale: 0.97, filter: 'blur(4px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: 10, scale: 0.97, filter: 'blur(4px)' }}
+            transition={{ duration: shouldReduceMotion ? 0.15 : 0.22, ease: easeOutExpo }}
+            className="pointer-events-auto absolute left-1/2 top-[calc(100%+12px)] w-[360px] -translate-x-1/2 rounded-[24px] border border-border bg-white/95 p-4 shadow-premium backdrop-blur-xl"
           >
             <div className="mb-3 flex items-center justify-between">
               <div>
@@ -183,25 +203,29 @@ export const DynamicIslandDialer = () => {
                 Clear
               </button>
             </div>
-            <div className="mb-4 rounded-2xl bg-gray-50 px-4 py-3 text-center font-mono text-lg tracking-[0.28em] text-gray-900">
+            <div className="mb-4 rounded-2xl bg-gray-50 px-4 py-3 text-center font-mono text-lg tracking-[0.22em] text-gray-900">
               {dialedDigits || '—'}
             </div>
             <div className="grid grid-cols-3 gap-2">
               {['1','2','3','4','5','6','7','8','9','*','0','#'].map((digit) => (
-                <button
+                <motion.button
                   key={digit}
                   onClick={() => pressKeypadDigit(digit)}
+                  whileTap={{ scale: shouldReduceMotion ? 1 : 0.95 }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 26 }}
                   className="h-12 rounded-2xl bg-white text-base font-semibold text-gray-900 shadow-sm ring-1 ring-gray-200 transition-transform active:scale-95 hover:bg-gray-50"
                 >
                   {digit}
-                </button>
+                </motion.button>
               ))}
-              <button
+              <motion.button
                 onClick={deleteKeypadDigit}
+                whileTap={{ scale: shouldReduceMotion ? 1 : 0.96 }}
+                transition={{ duration: 0.16, ease: easeInOutStrong }}
                 className="col-span-3 h-10 rounded-xl border border-radius-blue/20 bg-radius-blue/10 text-[10px] font-black uppercase tracking-[0.2em] text-radius-blue transition-all active:scale-95 hover:bg-radius-blue/15"
               >
                 Clear last digit
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         )}
@@ -221,10 +245,11 @@ const DialerButton = ({
   variant?: 'default' | 'danger';
   active?: boolean;
 }) => {
+  const shouldReduceMotion = useReducedMotion();
   return (
     <motion.button
-      whileTap={{ scale: 0.94 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      whileTap={{ scale: shouldReduceMotion ? 1 : 0.94 }}
+      transition={{ type: "spring", stiffness: 420, damping: 26 }}
       onClick={onClick}
       className={`
         w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200
