@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, CreditCard, PieChart, Users, Puzzle, 
   Sparkles, Bell, Mail, Phone, Settings as SettingsIcon,
-  PhoneIncoming, PhoneOutgoing, FileText, Plus
+  PhoneIncoming, PhoneOutgoing, FileText, Plus, X
 } from 'lucide-react';
 import { useCall } from '../context/CallContext';
 
@@ -47,7 +47,7 @@ export default function Settings() {
   const { openDialer } = useCall();
   const [activeTab, setActiveTab] = useState('calling');
   const [callCategory, setCallCategory] = useState<LogCategory>('Outgoing');
-  const [hoveredNote, setHoveredNote] = useState<string | null>(null);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
   const filteredLogs = mockLogs.filter(log => {
     if (callCategory === 'Missed') return log.type === 'missed';
@@ -56,9 +56,10 @@ export default function Settings() {
     if (callCategory === 'Notes') return log.hasNote;
     return true;
   });
+  const activeNote = mockLogs.find((log) => log.id === activeNoteId) ?? null;
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="relative flex h-full flex-col bg-white">
       {/* Header */}
       <div className="pt-8 px-8">
         <h1 className="text-[24px] font-semibold text-[#373758] tracking-[-0.48px] leading-[135%] mb-7">
@@ -220,26 +221,12 @@ export default function Settings() {
 
                     <div className="flex items-center gap-4">
                       {log.hasNote && (
-                        <div 
-                          onMouseEnter={() => setHoveredNote(log.id)}
-                          onMouseLeave={() => setHoveredNote(null)}
-                          className="p-2.5 bg-gray-50 rounded-xl text-gray-400 hover:text-radius-blue hover:bg-radius-blue/5 transition-all cursor-help relative"
+                        <button
+                          onClick={() => setActiveNoteId(log.id)}
+                          className="p-2.5 bg-gray-50 rounded-xl text-gray-400 hover:text-radius-blue hover:bg-radius-blue/5 transition-all"
                         >
                           <FileText className="w-4 h-4" />
-                          <AnimatePresence>
-                            {hoveredNote === log.id && (
-                              <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                                className="absolute bottom-full right-0 mb-3 w-56 bg-gray-900 text-white p-4 rounded-2xl text-[12px] font-medium shadow-2xl z-50 pointer-events-none border border-white/10"
-                              >
-                                {log.noteSnippet}
-                                <div className="absolute top-full right-5 transform -translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900" />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
+                        </button>
                       )}
                       <button className="px-6 py-2 bg-radius-blue/5 border border-radius-blue/20 text-radius-blue text-[12px] font-black rounded-xl hover:bg-radius-blue hover:text-white transition-all duration-300 transform active:scale-95 uppercase tracking-wider">
                         {log.type === 'missed' ? 'Call Back' : 'Call Again'}
@@ -271,6 +258,49 @@ export default function Settings() {
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {activeTab === 'calling' && activeNote && (
+          <motion.aside
+            initial={{ x: 420, opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 420, opacity: 0.5 }}
+            transition={{ duration: 0.24, ease: easeOutExpo }}
+            className="absolute inset-y-0 right-0 z-40 w-[400px] border-l border-gray-100 bg-white shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]"
+          >
+            <div className="flex h-full flex-col">
+              <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Call Notes</p>
+                  <h3 className="mt-2 text-[22px] font-black tracking-tight text-gray-900">{activeNote.name}</h3>
+                  <p className="mt-1 text-[12px] font-semibold text-gray-500">
+                    {activeNote.number} • {activeNote.time}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveNoteId(null)}
+                  className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-auto px-6 py-5">
+                <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Summary</p>
+                  <p className="mt-3 text-[13px] font-medium leading-6 text-gray-700">
+                    {activeNote.noteSnippet}
+                  </p>
+                  <p className="mt-3 text-[13px] font-medium leading-6 text-gray-700">
+                    Follow-up recommended based on call outcome. Keep this panel as the single source of note context
+                    for this log entry.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
